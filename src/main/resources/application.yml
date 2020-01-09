@@ -1,0 +1,45 @@
+server:
+  port: 9001
+
+spring:
+  rabbitmq:
+    master:
+      username: crowd-source
+      password: crowd-source
+      host: 10.4.1.117
+      port: 10672
+      virtualHost: crowd-source
+      ackMode: manual
+    cluster:
+      username: crowd-source
+      password: crowd-source
+      host: 10.4.1.117
+      port: 10672
+      virtualHost: crowd-source
+      ackMode: manual
+
+  kafka:
+    # kafka地址可以多个(多个","隔开)
+    bootstrap-servers: localhost:9092
+    topic-name: test-topic
+    partitions-num: 1
+    replication-factor: 1
+    producer:
+      # 一次最多发送数据量(batch.size和ling.ms之一，producer便开始发送消息)
+      batch-size: 16785
+      # 缓存容量 32M（以字节为单位）
+      buffer-memory: 33554432
+      key-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+      #发送失败后的重复发送次数
+      retries: 1
+      linger-ms: 100
+    consumer:
+      group-id: test-group
+      enable-auto-commit: true
+      auto-commit-interval: 100
+      auto-offset-reset: earliest
+      max-poll-records: 1
+      session-timeout: 30000
+    template:
+      default-topic:
