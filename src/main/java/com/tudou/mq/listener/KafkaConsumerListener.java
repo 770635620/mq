@@ -9,12 +9,16 @@ import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.annotation.PartitionOffset;
 import org.springframework.kafka.annotation.TopicPartition;
 import org.springframework.kafka.core.KafkaTemplate;
+import org.springframework.kafka.listener.KafkaListenerErrorHandler;
+import org.springframework.kafka.listener.ListenerExecutionFailedException;
 import org.springframework.kafka.support.Acknowledgment;
 import org.springframework.kafka.support.KafkaHeaders;
+import org.springframework.messaging.Message;
 import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
 /**
  *
@@ -59,7 +63,8 @@ public class KafkaConsumerListener {
    * @TopicPartition： topic--需要监听的Topic的名称，partitions --需要监听Topic的分区id，
    * partitionOffsets --可以设置从某个偏移量开始监听
    * @PartitionOffset： partition --分区Id，非数组，initialOffset --初始偏移量
-   *
+   * concurrency 设置消费线程并发度
+   * errorHandler 设置消息异常处理器
    * @param data
    */
   @KafkaListener(id = "batchWithPartition",clientIdPrefix = "bwp",containerFactory = "batchContainerFactory",
@@ -67,12 +72,26 @@ public class KafkaConsumerListener {
           @TopicPartition(topic = "topic.quick.batch.partition",partitions = {"1","3"}),
           @TopicPartition(topic = "topic.quick.batch.partition",partitions = {"0","4"},
               partitionOffsets = @PartitionOffset(partition = "2",initialOffset = "100"))
-      }
+      },concurrency = "6",errorHandler = "myErrorHandler"
   )
   public void batchListenerWithPartition(List<String> data) {
     log.info("topic.quick.batch.partition  receive : ");
     for (String s : data) {
       log.info(s);
+    }
+  }
+
+  @Service("myErrorHandler")
+  public class MyKafkaListenerErrorHandler implements KafkaListenerErrorHandler {
+    @Override
+    public Object handleError(Message<?> message, ListenerExecutionFailedException exception) {
+      log.info(message.getPayload().toString());
+      return null;
+    }
+    @Override
+    public Object handleError(Message<?> message, ListenerExecutionFailedException exception, Consumer<?, ?> consumer) {
+      log.info(message.getPayload().toString());
+      return null;
     }
   }
 

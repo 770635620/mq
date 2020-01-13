@@ -5,6 +5,7 @@ import com.tudou.mq.producer.KafkaProducer;
 import com.tudou.mq.producer.RabbitProducer;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.Properties;
 import java.util.concurrent.ExecutionException;
 import javax.annotation.Resource;
 import org.apache.kafka.clients.KafkaClient;
@@ -69,5 +70,17 @@ class MqApplicationTests {
   @Test
   public void getTopicInfo() throws ExecutionException, InterruptedException {
     adminClient.describeTopics(Arrays.asList("test-topic")).all().get().forEach((k,v) -> System.out.println("key: " + k + " v: " + v));
+  }
+
+  @Test
+  public void testCreateTopic(){
+    String [] options= new String[]{
+        "--create",
+        "--zookeeper","127.0.0.1:2181",
+        "--replication-factor", "3",
+        "--partitions", "3",
+        "--topic", "topic-kl"
+    };
+    //TopicCommand.main(options);
   }
 }

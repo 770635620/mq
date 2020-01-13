@@ -37,8 +37,10 @@ import org.springframework.kafka.core.ProducerFactory;
 import org.springframework.kafka.listener.ConsumerAwareListenerErrorHandler;
 import org.springframework.kafka.listener.ContainerProperties;
 import org.springframework.kafka.listener.ContainerProperties.AckMode;
+import org.springframework.kafka.listener.DeadLetterPublishingRecoverer;
 import org.springframework.kafka.listener.KafkaMessageListenerContainer;
 import org.springframework.kafka.listener.ListenerExecutionFailedException;
+import org.springframework.kafka.listener.SeekToCurrentErrorHandler;
 import org.springframework.kafka.requestreply.ReplyingKafkaTemplate;
 import org.springframework.kafka.support.KafkaHeaders;
 import org.springframework.kafka.support.ProducerListener;
@@ -153,6 +155,12 @@ public class KafkaConfig {
     factory.setConsumerFactory(consumerFactory());
     //禁止自动启动 可定时通过KafkaListenerEndpointRegistry 启动
     //factory.setAutoStartup(false);
+    //最大重试三次
+    /**
+     * 监听器会尝试三次调用，当到达最大的重试次数后。消息就会被丢掉重试死信队列里面去。
+     * 死信队列的Topic的规则是，业务Topic名字+“.DLT”
+     */
+    //factory.setErrorHandler(new SeekToCurrentErrorHandler(new DeadLetterPublishingRecoverer(kafkaTemplate), 3));
     return factory;
   }
 
