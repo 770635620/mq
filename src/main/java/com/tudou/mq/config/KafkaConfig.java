@@ -167,6 +167,7 @@ public class KafkaConfig {
   //批量监听
   @Bean("batchContainerFactory")
   public ConcurrentKafkaListenerContainerFactory batchContainerFactory() {
+
     ConcurrentKafkaListenerContainerFactory container = new ConcurrentKafkaListenerContainerFactory();
     container.setConsumerFactory(new DefaultKafkaConsumerFactory(consumerProps()));
     //设置并发量，小于或等于Topic的分区数
